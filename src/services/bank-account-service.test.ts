@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { BankAccountService } from "./bank-account-service";
 import { InMemoryBankAccountRepository } from "../repositories/in-memory-bank-account.repository";
 import { Money } from "../models/money";
-import { Success } from "../utils/type.utils";
+import { failure, Success } from "../utils/type.utils";
 
 describe("BankAccountService", () => {
   let bankingService: BankAccountService;
@@ -30,6 +30,31 @@ describe("BankAccountService", () => {
         },
         status: "success",
       });
+    });
+
+    it("should return a failure if the account already exists", () => {
+      const amount = (Money.create(100.0, "AUD") as Success<Money>).data;
+      const accountId = "213213";
+
+      bankingService.createAccount(accountId, amount);
+      const accountResult = bankingService.createAccount(accountId, amount);
+
+      expect(accountResult).toEqual({
+        details: {
+          reasonType: "AccountAlreadyExists",
+        },
+        status: "failure",
+      });
+    });
+  });
+
+  describe("getting balance", () => {
+    it("should return a failure if the account does not exist", () => {
+      const result = bankingService.getBalance("unknown_id");
+
+      expect(result).toEqual(
+        failure({ reasonType: "AccountDoesNotExist", accountId: "unknown_id" }),
+      );
     });
   });
 
@@ -111,6 +136,46 @@ describe("BankAccountService", () => {
           details: {
             reasonType: "AccountDoesNotExist",
             accountId: "unknown_sender",
+          },
+        });
+      });
+
+      it("if receiver does not exist should return an error while transferring", () => {
+        const transferAmount = (Money.create(50.0, "AUD") as Success<Money>)
+          .data;
+        bankingService.createAccount(senderId, senderBalance);
+
+        const result = bankingService.transfer(
+          senderId,
+          "unknown_receiver",
+          transferAmount,
+        );
+
+        expect(result).toEqual({
+          status: "failure",
+          details: {
+            reasonType: "AccountDoesNotExist",
+            accountId: "unknown_receiver",
+          },
+        });
+      });
+
+      it("returns failure if sender does not have enough balance", () => {
+        const transferAmount = (Money.create(150.0, "AUD") as Success<Money>)
+          .data;
+        bankingService.createAccount(senderId, senderBalance);
+        bankingService.createAccount(receiverId, receiverBalance);
+
+        const result = bankingService.transfer(
+          senderId,
+          receiverId,
+          transferAmount,
+        );
+
+        expect(result).toEqual({
+          status: "failure",
+          details: {
+            reasonType: "NotEnoughBalance",
           },
         });
       });

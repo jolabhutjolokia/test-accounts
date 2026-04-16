@@ -1,23 +1,17 @@
 import { Money } from "../models/money";
 import { IBankAccountRepository } from "../repositories/i-bank-account-repository";
-import { Result } from "../utils/type.utils";
+import { Result, success } from "../utils/type.utils";
 import { FailureDetails } from "../models/failures";
-import { BankAccount } from "../models/bankAccount";
+import { BankAccount } from "../models/bank-account";
 import { Transaction } from "../models/transaction";
 
 export class BankAccountService {
   constructor(private readonly bankAccountRepository: IBankAccountRepository) {}
 
   createAccount(accountId: string, money: Money): Result<{}, FailureDetails> {
-    const accountResult = BankAccount.create(accountId, money);
-    if (accountResult.status === "failure") {
-      return accountResult;
-    }
-    const createResult = this.bankAccountRepository.create(accountResult.data);
-    if (createResult.status === "success") {
-      return { status: "success", data: {} };
-    }
-    return createResult;
+    const account = BankAccount.create(accountId, money);
+    const createResult = this.bankAccountRepository.create(account);
+    return createResult.status === "success" ? success({}) : createResult;
   }
 
   getBalance(
@@ -29,7 +23,7 @@ export class BankAccountService {
       return getByAccountIdResult;
     }
     const bankAccount = getByAccountIdResult.data;
-    return { status: "success", data: { amount: bankAccount.balance() } };
+    return success({ amount: bankAccount.balance() });
   }
 
   transfer(
@@ -44,7 +38,11 @@ export class BankAccountService {
     if (receiverResult.status === "failure") return receiverResult;
 
     const senderAccount = senderResult.data;
-    senderAccount.addTransaction(new Transaction("sent", receiverId, amount));
+    const sendTransactionResult = senderAccount.addTransaction(
+      new Transaction("sent", receiverId, amount),
+    );
+    if (sendTransactionResult.status === "failure")
+      return sendTransactionResult;
 
     const receiverAccount = receiverResult.data;
     receiverAccount.addTransaction(
@@ -54,6 +52,6 @@ export class BankAccountService {
     this.bankAccountRepository.update(senderAccount);
     this.bankAccountRepository.update(receiverAccount);
 
-    return { status: "success", data: {} };
+    return success({});
   }
 }

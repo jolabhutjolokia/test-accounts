@@ -1,5 +1,5 @@
 import { Result } from "../utils/type.utils";
-import { BankAccount } from "../models/bankAccount";
+import { BankAccount } from "../models/bank-account";
 import { FailureDetails } from "../models/failures";
 
 export interface IBankAccountRepository {

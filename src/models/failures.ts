@@ -4,4 +4,6 @@ export type FailureDetails = Readonly<
       message: string;
     }
   | { reasonType: "AccountDoesNotExist"; accountId: string }
+  | { reasonType: "NotEnoughBalance" }
+  | { reasonType: "AccountAlreadyExists" }
 >;

@@ -1,4 +1,4 @@
-import { Result, success } from "../utils/type.utils";
+import { failure, Result, success } from "../utils/type.utils";
 import { FailureDetails } from "./failures";
 import { Money } from "./money";
 import { Transaction } from "./transaction";
@@ -11,11 +11,8 @@ export class BankAccount {
     public readonly initialAmount: Money,
   ) {}
 
-  static create(
-    accountId: string,
-    money: Money,
-  ): Result<BankAccount, FailureDetails> {
-    return success(new BankAccount(accountId, money));
+  static create(accountId: string, money: Money): BankAccount {
+    return new BankAccount(accountId, money);
   }
 
   balance() {
@@ -25,7 +22,13 @@ export class BankAccount {
     }, this.initialAmount);
   }
 
-  addTransaction(transaction: Transaction) {
+  addTransaction(transaction: Transaction): Result<{}, FailureDetails> {
+    const balance = this.balance();
+    const finalBal = balance.subtract(transaction.amount);
+    if (transaction.type === "sent" && finalBal.amount < 0) {
+      return failure({ reasonType: "NotEnoughBalance" });
+    }
     this.transactions.push(transaction);
+    return success({});
   }
 }
