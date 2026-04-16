@@ -1,6 +1,6 @@
 # Mable test
 
-This is a cli tool to simulate banking transactions between accounts using cvs files.
+This is a cli tool to simulate banking transactions between accounts using csv files.
 
 # Dependencies
 
