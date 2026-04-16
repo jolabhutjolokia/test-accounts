@@ -2,9 +2,10 @@
 
 This is a cli tool to simulate banking transactions between accounts using cvs files.
 
-# Tools required
+# Dependencies
 
 - node (22.19.0)
+- run `npm install` to install all packages
 
 # Scripts
 
