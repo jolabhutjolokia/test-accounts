@@ -25,13 +25,19 @@ export class BankAccount {
   private addTransaction(
     transaction: Transaction,
   ): Result<null, FailureDetails> {
-    const balance = this.balance();
-    const finalBal = balance.subtract(transaction.amount);
-    if (transaction.type === "sent" && finalBal.amount < 0) {
+    if (
+      transaction.type === "sent" &&
+      this.wouldBalanceBeNegative(transaction)
+    ) {
       return failure({ reasonType: "NotEnoughBalance" });
     }
     this.transactions.push(transaction);
     return success(null);
+  }
+
+  private wouldBalanceBeNegative(transaction: Transaction) {
+    const finalBal = this.balance().subtract(transaction.amount);
+    return finalBal.amount < 0;
   }
 
   send(otherAccountId: string, amount: Money) {
