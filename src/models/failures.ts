@@ -1,1 +1,1 @@
-export type FailureDetails = Readonly<{ reasonType: 'LessThanZero' | 'NotANumber' }>;
+export type FailureDetails = Readonly<{ reasonType: 'LessThanZero' | 'NotANumber'; message: string; }>;

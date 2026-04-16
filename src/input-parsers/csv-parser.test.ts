@@ -22,11 +22,18 @@ describe("parseBalancesFile", () => {
     expect(result).toEqual(expect.objectContaining({
       parsed: [
         {
+
           accountId: "1111234522226789",
-          amount: 5000.00
+          money: {
+            amount: 5000.00,
+            currency: "AUD",
+          }
         }, {
           accountId: "1111234522221234",
-          amount: 10000.00
+          money: {
+            amount: 10000.00,
+            currency: "AUD",
+          }
         }
       ],
       failures: []
@@ -46,12 +53,43 @@ describe("parseBalancesFile", () => {
       parsed: [
         {
           accountId: "1111234522226789",
-          amount: 5000.00
+          money: {
+            amount: 5000.00,
+            currency: "AUD",
+          }
         }
       ],
       failures: [{
         reasonType: 'LessThanZero',
-        rowNumber: 2
+        rowNumber: 2,
+        message: "Amount cannot be less than 0"
+      }]
+    }));
+  });
+
+  it('should return error for non numeric amounts', async () => {
+    const rows = [
+      `1111234522226789,5000.00`,
+      `1111234522221234,not_a_number`
+    ];
+    vi.spyOn(fs, "readFile").mockResolvedValue(rows.join('\n'));
+
+    const result = await parseBalancesFile('./test_balances.csv');
+
+    expect(result).toEqual(expect.objectContaining({
+      parsed: [
+        {
+          accountId: "1111234522226789",
+          money: {
+            amount: 5000.00,
+            currency: "AUD",
+          }
+        }
+      ],
+      failures: [{
+        reasonType: 'NotANumber',
+        rowNumber: 2,
+        message: "Amount is not a number",
       }]
     }));
   });
