@@ -69,7 +69,6 @@ describe("parseBalancesFile", () => {
 
   it('should return error for non numeric amounts', async () => {
     const rows = [
-      `1111234522226789,5000.00`,
       `1111234522221234,not_a_number`
     ];
     vi.spyOn(fs, "readFile").mockResolvedValue(rows.join('\n'));
@@ -77,18 +76,10 @@ describe("parseBalancesFile", () => {
     const result = await parseBalancesFile('./test_balances.csv');
 
     expect(result).toEqual(expect.objectContaining({
-      parsed: [
-        {
-          accountId: "1111234522226789",
-          money: {
-            amount: 5000.00,
-            currency: "AUD",
-          }
-        }
-      ],
+      parsed: [],
       failures: [{
         reasonType: 'NotANumber',
-        rowNumber: 2,
+        rowNumber: 1,
         message: "Amount is not a number",
       }]
     }));

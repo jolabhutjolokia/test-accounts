@@ -42,7 +42,7 @@ export const parseBalancesFile = async (filePath: string): Promise<BalanceParsin
         rowNumber: index + 1,
       });
     }
-     
+
     const balanceResult = Transaction.create(parts[0], moneyResult.data);
     if (balanceResult.status === 'success') return acc.addParsed(balanceResult.data);
     return acc.addFailure({
