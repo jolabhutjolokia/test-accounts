@@ -22,13 +22,13 @@ export class BankAccount {
     }, this.initialAmount);
   }
 
-  addTransaction(transaction: Transaction): Result<{}, FailureDetails> {
+  addTransaction(transaction: Transaction): Result<null, FailureDetails> {
     const balance = this.balance();
     const finalBal = balance.subtract(transaction.amount);
     if (transaction.type === "sent" && finalBal.amount < 0) {
       return failure({ reasonType: "NotEnoughBalance" });
     }
     this.transactions.push(transaction);
-    return success({});
+    return success(null);
   }
 }

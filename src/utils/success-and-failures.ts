@@ -1,6 +1,8 @@
 export class SuccessAndFailures<TSuccess, TFailure> {
-  public readonly successes: TSuccess[] = [];
-  public readonly failures: TFailure[] = [];
+  constructor(
+    public readonly successes: TSuccess[] = [],
+    public readonly failures: TFailure[] = [],
+  ) {}
 
   addFailure(details: TFailure): SuccessAndFailures<TSuccess, TFailure> {
     this.failures.push(details);

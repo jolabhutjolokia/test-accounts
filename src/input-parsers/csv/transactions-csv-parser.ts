@@ -2,10 +2,18 @@ import fs from "fs";
 import { FailureDetails } from "../../models/failures";
 import { SuccessAndFailures } from "../../utils/success-and-failures";
 
-type ParsingFailureDetails = FailureDetails & { rowNumber: number };
-export type ParsedTransaction = { fromId: string; toId: string; amount: number; };
+export type ParsingTransactionFailureDetails = FailureDetails & {
+  rowNumber: number;
+};
+export type ParsedTransaction = {
+  fromId: string;
+  toId: string;
+  amount: number;
+};
 
-const createNotNumberFailure = (index: number): ParsingFailureDetails => ({
+const createNotNumberFailure = (
+  index: number,
+): ParsingTransactionFailureDetails => ({
   rowNumber: index + 1,
   reasonType: "NotANumber",
   message: "Amount is not a number",
@@ -14,14 +22,15 @@ const createNotNumberFailure = (index: number): ParsingFailureDetails => ({
 const isNotANumber = (amountAsStr: string) =>
   amountAsStr === "" || isNaN(Number(amountAsStr));
 
-type ParsingResult = SuccessAndFailures<ParsedTransaction, ParsingFailureDetails>;
+type ParsingResult = SuccessAndFailures<
+  ParsedTransaction,
+  ParsingTransactionFailureDetails
+>;
 
-export const parseTransactionsFile = (
-  filePath: string,
-): ParsingResult => {
+export const parseTransactionsFile = (filePath: string): ParsingResult => {
   const rows = fs.readFileSync(filePath, "utf-8").split("\n");
   return rows.reduce<ParsingResult>((acc, row, index) => {
-    if (row.trim() === '') return acc;
+    if (row.trim() === "") return acc;
     const [fromId, toId, amountAsStr] = row.split(",");
     if (isNotANumber(amountAsStr)) {
       return acc.addFailure(createNotNumberFailure(index));

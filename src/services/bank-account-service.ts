@@ -6,13 +6,12 @@ import { BankAccount } from "../models/bank-account";
 import { Transaction } from "../models/transaction";
 
 export class BankAccountService {
-  constructor(private readonly accountRepository: IBankAccountRepository) {
-  }
+  constructor(private readonly accountRepository: IBankAccountRepository) {}
 
-  createAccount(accountId: string, money: Money): Result<{}, FailureDetails> {
+  createAccount(accountId: string, money: Money): Result<null, FailureDetails> {
     const account = BankAccount.create(accountId, money);
     const createResult = this.accountRepository.create(account);
-    return createResult.status === "success" ? success({}) : createResult;
+    return createResult.status === "success" ? success(null) : createResult;
   }
 
   getBalance(
@@ -31,7 +30,7 @@ export class BankAccountService {
     senderId: string,
     receiverId: string,
     amount: Money,
-  ): Result<{}, FailureDetails> {
+  ): Result<null, FailureDetails> {
     const senderResult = this.accountRepository.getByAccountId(senderId);
     if (senderResult.status === "failure") return senderResult;
     const receiverResult = this.accountRepository.getByAccountId(receiverId);
@@ -52,15 +51,15 @@ export class BankAccountService {
     this.accountRepository.update(senderAccount);
     this.accountRepository.update(receiverAccount);
 
-    return success({});
+    return success(null);
   }
 
   getAllBalances() {
     return this.accountRepository.getAllAccounts().map((x) => {
       return {
         accountId: x.accountId,
-        balance: x.balance()
-      }
+        balance: x.balance(),
+      };
     });
   }
 }

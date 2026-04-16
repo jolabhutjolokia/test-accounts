@@ -15,4 +15,3 @@ export const failure = <T>(details: T): Failure<T> => ({
   status: "failure",
   details,
 });
-

@@ -28,6 +28,6 @@ export class InMemoryBankAccountRepository implements IBankAccountRepository {
   }
 
   getAllAccounts() {
-    return Object.values(this.accounts)
+    return Object.values(this.accounts);
   }
 }

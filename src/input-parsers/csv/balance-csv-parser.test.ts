@@ -58,7 +58,7 @@ describe("parseBalancesFile", () => {
   });
 
   it("should ignore empty lines", () => {
-    const rows = [`1111234522226789,5000.00`, ''];
+    const rows = [`1111234522226789,5000.00`, ""];
     vi.spyOn(fs, "readFileSync").mockReturnValue(rows.join("\n"));
 
     const result = parseBalancesFile("./test_balances.csv");

@@ -119,7 +119,7 @@ describe("BankAccountService", () => {
         });
       });
 
-      it('should be able to get all account balances', () => {
+      it("should be able to get all account balances", () => {
         const transferAmount = (Money.create(50.0, "AUD") as Success<Money>)
           .data;
         bankingService.transfer(senderId, receiverId, transferAmount);
