@@ -20,4 +20,12 @@ export class Money {
       });
     return success(new Money(amount, currency));
   }
+
+  add(other: Money) {
+    return new Money(other.amount + this.amount, this.currency);
+  }
+
+  subtract(other: Money) {
+    return new Money(this.amount - other.amount, this.currency);
+  }
 }
