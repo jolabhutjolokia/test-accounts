@@ -1,4 +1,4 @@
-# Mable test
+# Cli Accounts Simulation
 
 This is a cli tool to simulate banking transactions between accounts using csv files.
 
