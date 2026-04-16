@@ -8,4 +8,6 @@ export interface IBankAccountRepository {
   getByAccountId(accountId: string): Result<BankAccount, FailureDetails>;
 
   update(senderAccount: BankAccount): void;
+
+  getAllAccounts(): BankAccount[];
 }

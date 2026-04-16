@@ -6,11 +6,12 @@ import { BankAccount } from "../models/bank-account";
 import { Transaction } from "../models/transaction";
 
 export class BankAccountService {
-  constructor(private readonly bankAccountRepository: IBankAccountRepository) {}
+  constructor(private readonly accountRepository: IBankAccountRepository) {
+  }
 
   createAccount(accountId: string, money: Money): Result<{}, FailureDetails> {
     const account = BankAccount.create(accountId, money);
-    const createResult = this.bankAccountRepository.create(account);
+    const createResult = this.accountRepository.create(account);
     return createResult.status === "success" ? success({}) : createResult;
   }
 
@@ -18,7 +19,7 @@ export class BankAccountService {
     accountId: string,
   ): Result<{ readonly amount: Money }, FailureDetails> {
     const getByAccountIdResult =
-      this.bankAccountRepository.getByAccountId(accountId);
+      this.accountRepository.getByAccountId(accountId);
     if (getByAccountIdResult.status === "failure") {
       return getByAccountIdResult;
     }
@@ -31,10 +32,9 @@ export class BankAccountService {
     receiverId: string,
     amount: Money,
   ): Result<{}, FailureDetails> {
-    const senderResult = this.bankAccountRepository.getByAccountId(senderId);
+    const senderResult = this.accountRepository.getByAccountId(senderId);
     if (senderResult.status === "failure") return senderResult;
-    const receiverResult =
-      this.bankAccountRepository.getByAccountId(receiverId);
+    const receiverResult = this.accountRepository.getByAccountId(receiverId);
     if (receiverResult.status === "failure") return receiverResult;
 
     const senderAccount = senderResult.data;
@@ -49,9 +49,18 @@ export class BankAccountService {
       new Transaction("received", senderId, amount),
     );
 
-    this.bankAccountRepository.update(senderAccount);
-    this.bankAccountRepository.update(receiverAccount);
+    this.accountRepository.update(senderAccount);
+    this.accountRepository.update(receiverAccount);
 
     return success({});
+  }
+
+  getAllBalances() {
+    return this.accountRepository.getAllAccounts().map((x) => {
+      return {
+        accountId: x.accountId,
+        balance: x.balance()
+      }
+    });
   }
 }

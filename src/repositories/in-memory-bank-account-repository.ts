@@ -26,4 +26,8 @@ export class InMemoryBankAccountRepository implements IBankAccountRepository {
   update(account: BankAccount): void {
     this.accounts[account.accountId] = account;
   }
+
+  getAllAccounts() {
+    return Object.values(this.accounts)
+  }
 }

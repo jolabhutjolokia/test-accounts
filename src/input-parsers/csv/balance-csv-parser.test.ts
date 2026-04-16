@@ -1,19 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { parseBalancesFile } from "./balance-csv-parser";
-import fs from "fs/promises";
+import fs from "fs";
 
-vi.mock("fs/promises");
+vi.mock("fs");
 
 describe("parseBalancesFile", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("should be able to parse a valid balances file", async () => {
+  it("should be able to parse a valid balances file", () => {
     const rows = [`1111234522226789,5000.00`, `1111234522221234,10000.00`];
-    vi.spyOn(fs, "readFile").mockResolvedValue(rows.join("\n"));
+    vi.spyOn(fs, "readFileSync").mockReturnValue(rows.join("\n"));
 
-    const result = await parseBalancesFile("./test_balances.csv");
+    const result = parseBalancesFile("./test_balances.csv");
 
     expect(result).toEqual(
       expect.objectContaining({
@@ -32,11 +32,11 @@ describe("parseBalancesFile", () => {
     );
   });
 
-  it("should return error for negative amounts", async () => {
+  it("should return error for negative amounts", () => {
     const rows = [`1111234522226789,5000.00`, `1111234522221234,not_a_number`];
-    vi.spyOn(fs, "readFile").mockResolvedValue(rows.join("\n"));
+    vi.spyOn(fs, "readFileSync").mockReturnValue(rows.join("\n"));
 
-    const result = await parseBalancesFile("./test_balances.csv");
+    const result = parseBalancesFile("./test_balances.csv");
 
     expect(result).toEqual(
       expect.objectContaining({
@@ -53,6 +53,25 @@ describe("parseBalancesFile", () => {
             message: "Amount is not a number",
           },
         ],
+      }),
+    );
+  });
+
+  it("should ignore empty lines", () => {
+    const rows = [`1111234522226789,5000.00`, ''];
+    vi.spyOn(fs, "readFileSync").mockReturnValue(rows.join("\n"));
+
+    const result = parseBalancesFile("./test_balances.csv");
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        successes: [
+          {
+            accountId: "1111234522226789",
+            amount: 5000.0,
+          },
+        ],
+        failures: [],
       }),
     );
   });

@@ -1,22 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import fs from "fs/promises";
+import fs from "fs";
 import { parseTransactionsFile } from './transactions-csv-parser';
 
-vi.mock("fs/promises");
+vi.mock("fs");
 
 describe("parseBalancesFile", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  it("should be able to parse a valid balances file", async () => {
+  it("should be able to parse a valid balances file", () => {
     const rows = [
       '1111234522226789,1212343433335665,500.00',
       '3212343433335755,2222123433331212,1000.00'
     ];
-    vi.spyOn(fs, "readFile").mockResolvedValue(rows.join("\n"));
+    vi.spyOn(fs, "readFileSync").mockReturnValue(rows.join("\n"));
 
-    const result = await parseTransactionsFile("./test_balances.csv");
+    const result = parseTransactionsFile("./test_balances.csv");
 
     expect(result).toEqual(
       expect.objectContaining({
@@ -37,14 +37,14 @@ describe("parseBalancesFile", () => {
     );
   });
 
-  it("should return error for negative amounts", async () => {
+  it("should return error for negative amounts", () => {
     const rows = [
       '1111234522226789,1212343433335665,not_a_number',
       '3212343433335755,2222123433331212,1000.00'
     ];
-    vi.spyOn(fs, "readFile").mockResolvedValue(rows.join("\n"));
+    vi.spyOn(fs, "readFileSync").mockReturnValue(rows.join("\n"));
 
-    const result = await parseTransactionsFile("./test_balances.csv");
+    const result = parseTransactionsFile("./test_balances.csv");
 
     expect(result).toEqual(
       expect.objectContaining({
@@ -62,6 +62,29 @@ describe("parseBalancesFile", () => {
             message: "Amount is not a number",
           },
         ],
+      }),
+    );
+  });
+
+  it("should ignore empty lines", () => {
+    const rows = [
+      '',
+      '3212343433335755,2222123433331212,1000.00'
+    ];
+    vi.spyOn(fs, "readFileSync").mockReturnValue(rows.join("\n"));
+
+    const result = parseTransactionsFile("./test_balances.csv");
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        successes: [
+          {
+            fromId: '3212343433335755',
+            toId: '2222123433331212',
+            amount: 1000.00,
+          },
+        ],
+        failures: [],
       }),
     );
   });

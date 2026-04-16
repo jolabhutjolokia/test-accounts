@@ -1,4 +1,4 @@
-import fs from "fs/promises";
+import fs from "fs";
 import { FailureDetails } from "../../models/failures";
 import { SuccessAndFailures } from "../../utils/success-and-failures";
 
@@ -15,12 +15,12 @@ const isNotANumber = (amountAsStr: string) =>
   amountAsStr === "" || isNaN(Number(amountAsStr));
 
 type ParsingResult = SuccessAndFailures<ParsedBalance, ParsingFailureDetails>;
-export const parseBalancesFile = async (
+export const parseBalancesFile = (
   filePath: string,
-): Promise<ParsingResult> => {
-  const rows = (await fs.readFile(filePath, "utf-8")).split("\n");
-
+): ParsingResult => {
+  const rows = (fs.readFileSync(filePath, "utf-8")).split("\n");
   return rows.reduce<ParsingResult>((acc, row, index) => {
+    if (row.trim() === '') return acc;
     const parts = row.split(",");
     const amountAsStr = parts[1];
     if (isNotANumber(amountAsStr)) {

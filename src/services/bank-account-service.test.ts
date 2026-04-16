@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { BankAccountService } from "./bank-account-service";
-import { InMemoryBankAccountRepository } from "../repositories/in-memory-bank-account.repository";
+import { InMemoryBankAccountRepository } from "../repositories/in-memory-bank-account-repository";
 import { Money } from "../models/money";
 import { failure, Success } from "../utils/type.utils";
 
@@ -117,6 +117,31 @@ describe("BankAccountService", () => {
           },
           status: "success",
         });
+      });
+
+      it('should be able to get all account balances', () => {
+        const transferAmount = (Money.create(50.0, "AUD") as Success<Money>)
+          .data;
+        bankingService.transfer(senderId, receiverId, transferAmount);
+
+        const accounts = bankingService.getAllBalances();
+
+        expect(accounts).toEqual([
+          {
+            accountId: "213213",
+            balance: {
+              amount: 50,
+              currency: "AUD",
+            },
+          },
+          {
+            accountId: "567657",
+            balance: {
+              amount: 350,
+              currency: "AUD",
+            },
+          },
+        ]);
       });
     });
 
