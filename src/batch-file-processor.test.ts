@@ -121,6 +121,4 @@ describe("createBatchFileProcessor", () => {
       ]);
     });
   });
-
-  describe("for parsing failures", () => {});
 });

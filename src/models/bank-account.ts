@@ -22,7 +22,9 @@ export class BankAccount {
     }, this.initialAmount);
   }
 
-  addTransaction(transaction: Transaction): Result<null, FailureDetails> {
+  private addTransaction(
+    transaction: Transaction,
+  ): Result<null, FailureDetails> {
     const balance = this.balance();
     const finalBal = balance.subtract(transaction.amount);
     if (transaction.type === "sent" && finalBal.amount < 0) {
@@ -30,5 +32,15 @@ export class BankAccount {
     }
     this.transactions.push(transaction);
     return success(null);
+  }
+
+  send(otherAccountId: string, amount: Money) {
+    return this.addTransaction(new Transaction("sent", otherAccountId, amount));
+  }
+
+  receive(otherAccountId: string, amount: Money) {
+    return this.addTransaction(
+      new Transaction("received", otherAccountId, amount),
+    );
   }
 }

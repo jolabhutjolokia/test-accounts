@@ -3,7 +3,6 @@ import { IBankAccountRepository } from "../repositories/i-bank-account-repositor
 import { Result, success } from "../utils/type.utils";
 import { FailureDetails } from "../models/failures";
 import { BankAccount } from "../models/bank-account";
-import { Transaction } from "../models/transaction";
 
 export class BankAccountService {
   constructor(private readonly accountRepository: IBankAccountRepository) {}
@@ -37,16 +36,12 @@ export class BankAccountService {
     if (receiverResult.status === "failure") return receiverResult;
 
     const senderAccount = senderResult.data;
-    const sendTransactionResult = senderAccount.addTransaction(
-      new Transaction("sent", receiverId, amount),
-    );
+    const sendTransactionResult = senderAccount.send(receiverId, amount);
     if (sendTransactionResult.status === "failure")
       return sendTransactionResult;
 
     const receiverAccount = receiverResult.data;
-    receiverAccount.addTransaction(
-      new Transaction("received", senderId, amount),
-    );
+    receiverAccount.receive(senderId, amount);
 
     this.accountRepository.update(senderAccount);
     this.accountRepository.update(receiverAccount);
