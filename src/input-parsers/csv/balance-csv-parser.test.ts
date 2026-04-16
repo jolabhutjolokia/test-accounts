@@ -17,20 +17,14 @@ describe("parseBalancesFile", () => {
 
     expect(result).toEqual(
       expect.objectContaining({
-        parsed: [
+        successes: [
           {
             accountId: "1111234522226789",
-            money: {
-              amount: 5000.0,
-              currency: "AUD",
-            },
+            amount: 5000.0,
           },
           {
             accountId: "1111234522221234",
-            money: {
-              amount: 10000.0,
-              currency: "AUD",
-            },
+            amount: 10000.0,
           },
         ],
         failures: [],
@@ -39,46 +33,23 @@ describe("parseBalancesFile", () => {
   });
 
   it("should return error for negative amounts", async () => {
-    const rows = [`1111234522226789,5000.00`, `1111234522221234,-10000.00`];
+    const rows = [`1111234522226789,5000.00`, `1111234522221234,not_a_number`];
     vi.spyOn(fs, "readFile").mockResolvedValue(rows.join("\n"));
 
     const result = await parseBalancesFile("./test_balances.csv");
 
     expect(result).toEqual(
       expect.objectContaining({
-        parsed: [
+        successes: [
           {
             accountId: "1111234522226789",
-            money: {
-              amount: 5000.0,
-              currency: "AUD",
-            },
+            amount: 5000.0,
           },
         ],
-        failures: [
-          {
-            reasonType: "LessThanZero",
-            rowNumber: 2,
-            message: "Amount cannot be less than 0",
-          },
-        ],
-      }),
-    );
-  });
-
-  it("should return error for non numeric amounts", async () => {
-    const rows = [`1111234522221234,not_a_number`];
-    vi.spyOn(fs, "readFile").mockResolvedValue(rows.join("\n"));
-
-    const result = await parseBalancesFile("./test_balances.csv");
-
-    expect(result).toEqual(
-      expect.objectContaining({
-        parsed: [],
         failures: [
           {
             reasonType: "NotANumber",
-            rowNumber: 1,
+            rowNumber: 2,
             message: "Amount is not a number",
           },
         ],

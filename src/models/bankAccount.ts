@@ -2,7 +2,7 @@ import { Result, success } from "../utils/type.utils";
 import { FailureDetails } from "./failures";
 import { Money } from "./money";
 
-export class Transaction {
+export class BankAccount {
   private constructor(
     public readonly accountId: string,
     public readonly money: Money,
@@ -11,7 +11,7 @@ export class Transaction {
   static create(
     accountId: string,
     money: Money,
-  ): Result<Transaction, FailureDetails> {
-    return success(new Transaction(accountId, money));
+  ): Result<BankAccount, FailureDetails> {
+    return success(new BankAccount(accountId, money));
   }
 }

@@ -1,24 +1,9 @@
 import fs from "fs/promises";
-import { Transaction } from "../../models/transaction";
 import { FailureDetails } from "../../models/failures";
-import { Money } from "../../models/money";
+import { SuccessAndFailures } from "../../utils/success-and-failures";
 
 type ParsingFailureDetails = FailureDetails & { rowNumber: number };
-
-class BalanceParsingResult {
-  public readonly parsed: Transaction[] = [];
-  public readonly failures: ParsingFailureDetails[] = [];
-
-  addFailure(details: ParsingFailureDetails): BalanceParsingResult {
-    this.failures.push(details);
-    return this;
-  }
-
-  addParsed(data: Transaction): BalanceParsingResult {
-    this.parsed.push(data);
-    return this;
-  }
-}
+export type ParsedBalance = { accountId: string; amount: number };
 
 const createNotNumberFailure = (index: number): ParsingFailureDetails => ({
   rowNumber: index + 1,
@@ -29,30 +14,19 @@ const createNotNumberFailure = (index: number): ParsingFailureDetails => ({
 const isNotANumber = (amountAsStr: string) =>
   amountAsStr === "" || isNaN(Number(amountAsStr));
 
+type ParsingResult = SuccessAndFailures<ParsedBalance, ParsingFailureDetails>;
 export const parseBalancesFile = async (
   filePath: string,
-): Promise<BalanceParsingResult> => {
+): Promise<ParsingResult> => {
   const rows = (await fs.readFile(filePath, "utf-8")).split("\n");
-  return rows.reduce<BalanceParsingResult>((acc, row, index) => {
+
+  return rows.reduce<ParsingResult>((acc, row, index) => {
     const parts = row.split(",");
     const amountAsStr = parts[1];
-    if (isNotANumber(amountAsStr))
+    if (isNotANumber(amountAsStr)) {
       return acc.addFailure(createNotNumberFailure(index));
-
-    const moneyResult = Money.create(parseFloat(amountAsStr), "AUD");
-    if (moneyResult.status === "failure") {
-      return acc.addFailure({
-        ...moneyResult.details,
-        rowNumber: index + 1,
-      });
     }
-
-    const balanceResult = Transaction.create(parts[0], moneyResult.data);
-    if (balanceResult.status === "success")
-      return acc.addParsed(balanceResult.data);
-    return acc.addFailure({
-      ...balanceResult.details,
-      rowNumber: index + 1,
-    });
-  }, new BalanceParsingResult());
+    const amount = parseFloat(amountAsStr);
+    return acc.addSuccess({ accountId: parts[0], amount: amount });
+  }, new SuccessAndFailures());
 };
