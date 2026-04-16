@@ -7,10 +7,20 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "est:coverage": "vitest run --coverage",
+    "lint": "eslint src"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@vitest/coverage-v8": "^4.1.4",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.3",
     "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.2",
     "vitest": "^4.1.4"
   }
 }
