@@ -32,7 +32,7 @@ This is a cli tool to simulate banking transactions between accounts using cvs f
 - If a transaction fails then it is just ignored and continue to the next one
 - Only support AUD for the moment with no conversion support
 - I have added some basic input validation but not exhaustive
-- Added a get all balances method to just make it easier to view balances from a cli 
+- Added a get all balances method to just make it easier to view balances from a cli
 
 # Todo
 

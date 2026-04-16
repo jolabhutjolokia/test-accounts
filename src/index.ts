@@ -18,7 +18,7 @@ const {
   transactionsFile: "./test-data/mable_transactions.csv",
 });
 
-console.log("-----------Start Parsing Failures ------------------");
+console.log("-----------Start Failures ------------------");
 balanceParsingFailures.forEach((x) => {
   console.error("Balance parse failure", x);
 });
@@ -31,9 +31,9 @@ balanceCreationFailures.forEach((x) => {
 transactionProcessingFailures.forEach((x) => {
   console.error("Failed to create balance", x);
 });
-console.log("-----------End Parsing Failures ------------------");
+console.log("-----------End Failures ------------------");
 
-console.log("---------- all account balances ---------");
+console.log("---------- All account balances ---------");
 
 service.getAllBalances().forEach((x) => {
   console.log(`Account Id ${x.accountId}, balance: ${x.balance.amount}`);
